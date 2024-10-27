@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Define the file that keeps track of merged branches
+MERGED_BRANCHES_FILE=".github/merged-branches.txt"
+
+# Get the current branch name
+branch_name=$(git rev-parse --abbrev-ref HEAD)
+
+# Check if the branch name exists in the merged branches file
+if [ -f "$MERGED_BRANCHES_FILE" ] && grep -Fxq "$branch_name" "$MERGED_BRANCHES_FILE"; then
+  echo "Error: Branch '$branch_name' has already been merged and cannot accept new commits."
+  exit 1
+fi
