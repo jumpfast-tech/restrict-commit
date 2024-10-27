@@ -1,0 +1,35 @@
+name: Track Merged Branches
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  add-to-merged-list:
+    runs-on: ubuntu-latest
+
+    # Condition to run only if the PR is merged into the main branch
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == github.event.repository.default_branch
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Ensure merged-branches.txt exists
+        run: |
+          # Check if the file exists, and if not, create it
+          if [ ! -f .github/merged-branches.txt ]; then
+            touch .github/merged-branches.txt
+          fi
+
+      - name: Add branch to merged-branches.txt
+        run: |
+          # Get the branch name from the merged PR and add it to the merged-branches.txt
+          echo "${{ github.event.pull_request.head.ref }}" >> .github/merged-branches.txt
+          git config user.name "jumpfast-tech"
+          git config user.email "178046211+jumpfast-bot@users.noreply.github.com"
+          git add .github/merged-branches.txt
+          git commit -m "Add ${{ github.event.pull_request.head.ref }} to merged-branches"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
